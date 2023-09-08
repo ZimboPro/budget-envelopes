@@ -8,11 +8,14 @@ A Flutter app to help with budgeting based on [envelope budgeting/cash envelopes
 
 - [ ] UI
     - [x] Overview
+        - [x] Spending chart
+            - [x] UI
+            - [x] Logic if start of the month
     - [x] Save envelope
-    - [ ] Delete envelope
+    - [x] Delete envelope
     - [ ] Edit envelope
     - [x] Save transaction
-    - [ ] Delete transaction
+    - [x] Delete transaction
     - [ ] Edit transaction
         - [ ] Save transaction for different envelope if in different month/year
 - [x] Persistent storage

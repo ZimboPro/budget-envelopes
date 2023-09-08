@@ -34,3 +34,8 @@ class AddingEnvelopeTransaction extends EnvelopeEvent {
   const AddingEnvelopeTransaction(EnvelopeEntity envelope)
       : super(entity: envelope);
 }
+
+class RemovingEnvelopeTransaction extends EnvelopeEvent {
+  const RemovingEnvelopeTransaction(EnvelopeEntity envelope)
+      : super(entity: envelope);
+}

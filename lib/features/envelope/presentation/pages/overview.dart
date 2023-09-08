@@ -1,10 +1,15 @@
+import 'dart:math';
+
 import 'package:budget_envelopes/features/envelope/domain/entities/envelope.dart';
 import 'package:budget_envelopes/features/envelope/presentation/bloc/envelope_bloc.dart';
 import 'package:budget_envelopes/features/envelope/presentation/widgets/envelope_tile.dart';
 import 'package:currency_formatter/currency_formatter.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:quiver/time.dart';
 
 class OverView extends StatefulWidget {
   const OverView({super.key});
@@ -16,6 +21,9 @@ class OverView extends StatefulWidget {
 class _OverViewState extends State<OverView> {
   var total = 0.0;
   var spent = 0.0;
+  var maxValue = 100.0;
+  List<double> monthDaysAmount = [];
+  List<DayDetails> last7DaysAmount = [];
 
   final CurrencyFormatterSettings _currency = CurrencyFormatterSettings(
       symbol: 'R',
@@ -29,6 +37,7 @@ class _OverViewState extends State<OverView> {
     super.initState();
     if (BlocProvider.of<EnvelopeBloc>(context).state.entities != null) {
       setAmounts(BlocProvider.of<EnvelopeBloc>(context).state.entities!);
+      chartData(BlocProvider.of<EnvelopeBloc>(context).state.entities!);
     }
   }
 
@@ -42,6 +51,27 @@ class _OverViewState extends State<OverView> {
           spent += transaction.amount;
         }
       }
+    });
+  }
+
+  void chartData(List<EnvelopeEntity> envelopes) {
+    setState(() {
+      var date = DateTime.now();
+      var monthAmt = daysInMonth(date.year, date.month);
+      var temp = List.generate(monthAmt,
+          (index) => DayDetails(DateTime(date.year, date.month, index), 0.0));
+
+      for (var envelope in envelopes) {
+        for (var transaction in envelope.transactions) {
+          temp[transaction.time.day].amount += transaction.amount;
+        }
+      }
+      var dayOfMonth = max(date.day, 7);
+      last7DaysAmount = temp.sublist(dayOfMonth - 6, dayOfMonth + 1);
+
+      var tempMaxValue = last7DaysAmount.map((e) => e.amount).reduce(max);
+      maxValue = max(maxValue, tempMaxValue * 1.1);
+      monthDaysAmount = temp.map((e) => e.amount).toList();
     });
   }
 
@@ -60,6 +90,14 @@ class _OverViewState extends State<OverView> {
         ],
       ),
       body: _buildBody(),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 30),
+        child: FloatingActionButton(
+            child: const Icon(Icons.add),
+            onPressed: () {
+              context.push('/envelope/add');
+            }),
+      ),
     );
   }
 
@@ -68,6 +106,7 @@ class _OverViewState extends State<OverView> {
       listener: (context, state) {
         if (state is EnvelopesLoaded) {
           setAmounts(state.entities!);
+          chartData(state.entities!);
         }
       },
       builder: (context, state) {
@@ -101,6 +140,7 @@ class _OverViewState extends State<OverView> {
           }
           return Column(
             children: [
+              WeekChart(maxValue: maxValue, last7DaysAmount: last7DaysAmount),
               ListView.builder(
                 physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
@@ -131,4 +171,67 @@ class _OverViewState extends State<OverView> {
       },
     );
   }
+}
+
+class DayDetails {
+  final DateTime date;
+  double amount;
+
+  DayDetails(this.date, this.amount);
+}
+
+class WeekChart extends StatelessWidget {
+  const WeekChart({
+    super.key,
+    required this.maxValue,
+    required this.last7DaysAmount,
+  });
+
+  final double maxValue;
+  final List<DayDetails> last7DaysAmount;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 15.0),
+      child: SizedBox(
+        height: 200,
+        child: BarChart(BarChartData(
+            maxY: maxValue,
+            minY: 0,
+            gridData: const FlGridData(show: false),
+            borderData: FlBorderData(show: false),
+            titlesData: FlTitlesData(
+                show: true,
+                topTitles:
+                    const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                rightTitles:
+                    const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (value, meta) =>
+                            getTitlesWidget(last7DaysAmount[value.toInt()])))),
+            barGroups: last7DaysAmount
+                .asMap()
+                .entries
+                .map((e) => BarChartGroupData(x: e.key, barRods: [
+                      BarChartRodData(
+                          toY: e.value.amount,
+                          color: Colors.grey[800],
+                          width: 20,
+                          borderRadius: BorderRadius.circular(2),
+                          backDrawRodData: BackgroundBarChartRodData(
+                              show: true,
+                              toY: maxValue,
+                              color: Colors.grey[200]))
+                    ]))
+                .toList())),
+      ),
+    );
+  }
+}
+
+Widget getTitlesWidget(DayDetails day) {
+  return Text(DateFormat.Md().format(day.date));
 }

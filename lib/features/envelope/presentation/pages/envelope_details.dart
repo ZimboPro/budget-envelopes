@@ -3,6 +3,7 @@ import 'package:budget_envelopes/features/envelope/presentation/bloc/envelope_bl
 import 'package:currency_formatter/currency_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
@@ -72,18 +73,7 @@ class _EnvelopeDetailsState extends State<EnvelopeDetails> {
       padding: const EdgeInsets.symmetric(horizontal: 15.0),
       child:
           BlocConsumer<EnvelopeBloc, EnvelopeState>(listener: (context, state) {
-        print("+++++++++++++++++++++++++++++++");
-        if (state is EnvelopesLoaded) {
-          print(" 1 Envelopes loaded");
-        }
         if (state is EnvelopeLoaded) {
-          print(" 2 Envelope loaded");
-        }
-        if (state is EnvelopeUpdating) {
-          print(" 3 Envelope Updating");
-        }
-        if (state is EnvelopeLoaded) {
-          print("--------------------------------");
           setState(() {
             var used = 0.0;
             for (var transaction in state.entity!.transactions) {
@@ -181,7 +171,7 @@ class _EnvelopeDetailsState extends State<EnvelopeDetails> {
               const SizedBox(
                 height: 10.0,
               ),
-              Transactions(state: EnvelopeLoaded(state.entity))
+              Transactions(state: EnvelopeLoaded(_entity))
             ],
           );
         }
@@ -217,32 +207,50 @@ class Transactions extends StatelessWidget {
               ),
           itemBuilder: (context, index) {
             var s = state.entity!.transactions[index];
-            return Container(
-              decoration: BoxDecoration(
-                  border: Border.all(color: Colors.black38),
-                  borderRadius: BorderRadius.circular(4)),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    Column(
-                      children: [
-                        Text(DateFormat.yMd().format(s.time)),
-                        Text(DateFormat.Hm().format(s.time)),
-                      ],
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Text(s.name),
-                    Expanded(
-                      child: Text(
-                        CurrencyFormatter.format(s.amount, _currency,
-                            enforceDecimals: true),
-                        textAlign: TextAlign.right,
+            return Slidable(
+              endActionPane:
+                  ActionPane(motion: const BehindMotion(), children: [
+                SlidableAction(
+                  onPressed: (_) {
+                    EnvelopeLoaded toBeRemoved = state.copyWith();
+                    toBeRemoved.entity!.transactions.removeAt(index);
+                    context
+                        .read<EnvelopeBloc>()
+                        .add(SaveEnvelopeTransaction(toBeRemoved.entity!));
+                  },
+                  backgroundColor: const Color(0xFFFE4A49),
+                  foregroundColor: Colors.white,
+                  icon: Icons.delete,
+                  label: 'Delete',
+                )
+              ]),
+              child: Container(
+                decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black38),
+                    borderRadius: BorderRadius.circular(4)),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    children: [
+                      Column(
+                        children: [
+                          Text(DateFormat.yMd().format(s.time)),
+                          Text(DateFormat.Hm().format(s.time)),
+                        ],
                       ),
-                    )
-                  ],
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Text(s.name),
+                      Expanded(
+                        child: Text(
+                          CurrencyFormatter.format(s.amount, _currency,
+                              enforceDecimals: true),
+                          textAlign: TextAlign.right,
+                        ),
+                      )
+                    ],
+                  ),
                 ),
               ),
             );

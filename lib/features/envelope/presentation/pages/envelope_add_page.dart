@@ -28,6 +28,12 @@ class _EnvelopeAddPageState extends State<EnvelopeAddPage> {
         return Future.value(true);
       },
       child: Scaffold(
+        appBar: AppBar(
+          leading: BackButton(onPressed: () {
+            context.pop();
+          }),
+          title: const Text("Add Envelope"),
+        ),
         body: _buildBody(context),
       ),
     );
@@ -97,7 +103,6 @@ class _EnvelopeAddPageState extends State<EnvelopeAddPage> {
           amountAllocated: amountFormatter.getUnformattedValue().toDouble(),
           monthYear: getYearMonth())));
       context.pop();
-      print("Save");
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

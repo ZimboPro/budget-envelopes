@@ -26,7 +26,7 @@ class EnvelopesLoaded extends EnvelopeState {
 
   @override
   copyWith({List<EnvelopeEntity>? entities, EnvelopeEntity? entity}) {
-    return EnvelopesLoaded(entities ?? this.entities!);
+    return EnvelopesLoaded(entities ?? [...this.entities!]);
   }
 }
 
@@ -35,7 +35,7 @@ class EnvelopeLoaded extends EnvelopeState {
 
   @override
   copyWith({List<EnvelopeEntity>? entities, EnvelopeEntity? entity}) {
-    return EnvelopeLoaded(entity ?? this.entity);
+    return EnvelopeLoaded(entity ?? this.entity?.copy());
   }
 }
 
@@ -44,6 +44,6 @@ class EnvelopeUpdating extends EnvelopeState {
 
   @override
   copyWith({List<EnvelopeEntity>? entities, EnvelopeEntity? entity}) {
-    return EnvelopeUpdating(entity ?? this.entity);
+    return EnvelopeUpdating(entity ?? this.entity?.copy());
   }
 }

@@ -22,4 +22,16 @@ class EnvelopeEntity extends Equatable {
   @override
   List<Object?> get props =>
       [id, name, description, amountAllocated, monthYear, transactions];
+
+  EnvelopeEntity copy() {
+    return EnvelopeEntity(
+        id: id,
+        name: name,
+        description: description,
+        amountAllocated: amountAllocated,
+        monthYear: monthYear,
+        transactions: [
+          ...transactions,
+        ]);
+  }
 }

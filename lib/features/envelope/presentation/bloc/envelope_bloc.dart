@@ -23,6 +23,7 @@ class EnvelopeBloc extends Bloc<EnvelopeEvent, EnvelopeState> {
     on<SaveEnvelope>(onSaveEnvelope);
     on<SaveEnvelopeTransaction>(onSaveEnvelopeTransaction);
     on<AddingEnvelopeTransaction>(onAddingEnvelopeTransaction);
+    on<RemovingEnvelopeTransaction>(onRemovingEnvelopeTransaction);
   }
 
   void onDeleteEnvelope(
@@ -61,5 +62,12 @@ class EnvelopeBloc extends Bloc<EnvelopeEvent, EnvelopeState> {
     final _ = await _save.call(params: event.entity);
     final envelope = await _get.call(params: event.entity!.id);
     emit(EnvelopeUpdating(envelope));
+  }
+
+  void onRemovingEnvelopeTransaction(
+      RemovingEnvelopeTransaction event, Emitter<EnvelopeState> emit) async {
+    final _ = await _save.call(params: event.entity);
+    final envelope = await _get.call(params: event.entity!.id);
+    emit(EnvelopeLoaded(envelope));
   }
 }
