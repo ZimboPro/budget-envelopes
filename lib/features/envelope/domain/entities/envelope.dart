@@ -34,4 +34,23 @@ class EnvelopeEntity extends Equatable {
           ...transactions,
         ]);
   }
+
+  EnvelopeEntity copyWith(
+      {int? id,
+      String? name,
+      String? description,
+      double? amountAllocated,
+      int? monthYear,
+      List<TransactionEntity>? transactions}) {
+    return EnvelopeEntity(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        description: description ?? this.description,
+        amountAllocated: amountAllocated ?? this.amountAllocated,
+        monthYear: monthYear ?? this.monthYear,
+        transactions: transactions ??
+            [
+              ...this.transactions,
+            ]);
+  }
 }

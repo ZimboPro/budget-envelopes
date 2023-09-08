@@ -22,8 +22,14 @@ final router = GoRouter(
       builder: (context, state) => const EnvelopeAddPage(),
     ),
     GoRoute(
+      path: '/envelope/edit/:id',
+      builder: (context, state) => EnvelopeAddPage(
+        envelopeId: int.parse(state.pathParameters["id"]!),
+      ),
+    ),
+    GoRoute(
       path: '/envelope/details',
-      builder: (context, state) => EnvelopeDetails(),
+      builder: (context, state) => const EnvelopeDetails(),
     ),
     GoRoute(
       path: '/envelope/transaction',

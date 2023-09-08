@@ -37,9 +37,9 @@ class EnvelopeRepositoryImpl extends EnvelopeRepository {
 
   @override
   Future<EnvelopeEntity> updateEnvelope(EnvelopeEntity envelope) async {
-    await _appDatabase
+    var result = await _appDatabase
         .insertOrUpdateEnvelope(EnvelopeDao.fromEnvelopeEntity(envelope));
-    return envelope;
+    return result.toEnvelopeEntity();
   }
 
   @override

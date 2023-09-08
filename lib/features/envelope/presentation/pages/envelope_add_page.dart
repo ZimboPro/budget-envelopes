@@ -7,7 +7,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 class EnvelopeAddPage extends StatefulWidget {
-  const EnvelopeAddPage({super.key});
+  final int? envelopeId;
+  const EnvelopeAddPage({super.key, this.envelopeId});
 
   @override
   State<EnvelopeAddPage> createState() => _EnvelopeAddPageState();
@@ -19,6 +20,22 @@ class _EnvelopeAddPageState extends State<EnvelopeAddPage> {
   final amount = TextEditingController();
   final amountFormatter = CurrencyTextInputFormatter(enableNegative: false);
   final _formKey = GlobalKey<FormState>();
+  int? monthYear;
+
+  @override
+  void initState() {
+    super.initState();
+    if (BlocProvider.of<EnvelopeBloc>(context).state.entity != null) {
+      var s = BlocProvider.of<EnvelopeBloc>(context).state.entity!;
+      name.text = s.name;
+      description.text = s.description ?? '';
+      amount.text = s.amountAllocated.toStringAsFixed(2);
+      monthYear = s.monthYear;
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("An error has occurred. Please try again later")));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,11 +114,21 @@ class _EnvelopeAddPageState extends State<EnvelopeAddPage> {
 
   onSubmit(BuildContext context) {
     if (_formKey.currentState!.validate()) {
-      context.read<EnvelopeBloc>().add(SaveEnvelope(EnvelopeEntity(
+      if (widget.envelopeId == null) {
+        context.read<EnvelopeBloc>().add(SaveEnvelope(EnvelopeEntity(
+            name: name.value.text,
+            description: description.text.isNotEmpty ? description.text : null,
+            amountAllocated: amountFormatter.getUnformattedValue().toDouble(),
+            monthYear: monthYear ?? getYearMonth())));
+      } else {
+        var s = BlocProvider.of<EnvelopeBloc>(context).state.entity!;
+        var t = s.copyWith(
           name: name.value.text,
           description: description.text.isNotEmpty ? description.text : null,
           amountAllocated: amountFormatter.getUnformattedValue().toDouble(),
-          monthYear: getYearMonth())));
+        );
+        context.read<EnvelopeBloc>().add(SaveEditedEnvelope(t));
+      }
       context.pop();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

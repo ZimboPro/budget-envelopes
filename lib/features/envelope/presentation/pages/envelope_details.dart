@@ -54,6 +54,13 @@ class _EnvelopeDetailsState extends State<EnvelopeDetails> {
             context.pop();
           }),
           title: const Text("Transaction Details"),
+          actions: [
+            IconButton(
+                onPressed: () {
+                  context.push('/envelope/edit/${_entity!.id!}');
+                },
+                icon: const Icon(Icons.edit))
+          ],
         ),
         body: _buildBody(context),
         floatingActionButton: FloatingActionButton(

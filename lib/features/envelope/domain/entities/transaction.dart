@@ -4,9 +4,11 @@ class TransactionEntity extends Equatable {
   final DateTime time;
   final double amount;
   final String? description;
+  final int? id;
   final String name;
 
   const TransactionEntity({
+    this.id,
     required this.time,
     required this.amount,
     this.description,
@@ -14,5 +16,5 @@ class TransactionEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props => [time, amount, description, name];
+  List<Object?> get props => [id, time, amount, description, name];
 }

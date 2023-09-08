@@ -39,6 +39,15 @@ class EnvelopeLoaded extends EnvelopeState {
   }
 }
 
+class EnvelopeEditing extends EnvelopeState {
+  const EnvelopeEditing(EnvelopeEntity? entity) : super(entity: entity);
+
+  @override
+  copyWith({List<EnvelopeEntity>? entities, EnvelopeEntity? entity}) {
+    return EnvelopeEditing(entity ?? this.entity?.copy());
+  }
+}
+
 class EnvelopeUpdating extends EnvelopeState {
   const EnvelopeUpdating(EnvelopeEntity? entity) : super(entity: entity);
 

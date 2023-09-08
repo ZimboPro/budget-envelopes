@@ -25,9 +25,11 @@ class AppDatabase {
     });
   }
 
-  Future<void> insertOrUpdateEnvelope(EnvelopeDao envelope) async {
-    await db.writeTxn(() async {
-      await db.envelopeDaos.put(envelope);
+  Future<EnvelopeDao> insertOrUpdateEnvelope(EnvelopeDao envelope) async {
+    return await db.writeTxn<EnvelopeDao>(() async {
+      var id = await db.envelopeDaos.put(envelope);
+      envelope.id = id;
+      return envelope;
     });
   }
 }

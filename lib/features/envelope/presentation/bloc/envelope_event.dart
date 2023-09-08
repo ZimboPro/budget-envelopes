@@ -25,6 +25,10 @@ class SaveEnvelope extends EnvelopeEvent {
   const SaveEnvelope(EnvelopeEntity envelope) : super(entity: envelope);
 }
 
+class SaveEditedEnvelope extends EnvelopeEvent {
+  const SaveEditedEnvelope(EnvelopeEntity envelope) : super(entity: envelope);
+}
+
 class SaveEnvelopeTransaction extends EnvelopeEvent {
   const SaveEnvelopeTransaction(EnvelopeEntity envelope)
       : super(entity: envelope);
