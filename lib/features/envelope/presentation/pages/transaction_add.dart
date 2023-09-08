@@ -7,7 +7,8 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 class TransactionAdd extends StatefulWidget {
-  const TransactionAdd({Key? key}) : super(key: key);
+  final int? transactionId;
+  const TransactionAdd({Key? key, this.transactionId}) : super(key: key);
 
   @override
   State<TransactionAdd> createState() => _TransactionAddState();
@@ -23,12 +24,38 @@ class _TransactionAddState extends State<TransactionAdd> {
   TimeOfDay _time = TimeOfDay.now();
 
   final name = TextEditingController();
-
   final description = TextEditingController();
-
   final _dateFormat = 'dd/MM/yyyy';
-
+  final amount = TextEditingController();
   final amountFormatter = CurrencyTextInputFormatter(enableNegative: false);
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.transactionId != null &&
+        BlocProvider.of<EnvelopeBloc>(context).state.entity != null) {
+      var s = BlocProvider.of<EnvelopeBloc>(context).state.entity!;
+      var transactions = s.transactions
+          .where((element) => element.id == widget.transactionId!);
+      if (transactions.isNotEmpty) {
+        var transaction = transactions.first;
+        name.text = transaction.name;
+        description.text = transaction.description ?? '';
+        amount.text = transaction.amount.toStringAsFixed(2);
+        date.text = DateFormat(_dateFormat).format(transaction.time);
+        final localizations = MaterialLocalizations.of(context);
+        time.text = localizations
+            .formatTimeOfDay(TimeOfDay.fromDateTime(transaction.time));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content:
+                Text("The transaction doesn't exist. Please try again later")));
+      }
+    } else if (widget.transactionId != null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("An error has occurred. Please try again later")));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,6 +110,7 @@ class _TransactionAddState extends State<TransactionAdd> {
                     labelText: "Amount",
                   ),
                   keyboardType: TextInputType.number,
+                  controller: amount,
                   inputFormatters: [
                     amountFormatter,
                   ],

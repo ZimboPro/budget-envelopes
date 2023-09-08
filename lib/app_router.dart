@@ -34,6 +34,12 @@ final router = GoRouter(
     GoRoute(
       path: '/envelope/transaction',
       builder: (context, state) => const TransactionAdd(),
+    ),
+    GoRoute(
+      path: '/envelope/transaction/edit/:id',
+      builder: (context, state) => TransactionAdd(
+        transactionId: int.parse(state.pathParameters["id"]!),
+      ),
     )
   ],
 );
