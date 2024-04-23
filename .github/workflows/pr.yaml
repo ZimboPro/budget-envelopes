@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: ZimboPro/flutter-unused-files@v1.0.0
+      - uses: ZimboPro/flutter-unused-files@v1
         with:
           warning: true
   check_files_ignore_assets:
@@ -17,7 +17,7 @@ jobs:
     needs: [check_files_warning]
     steps:
       - uses: actions/checkout@v3
-      - uses: ZimboPro/flutter-unused-files@v1.0.0
+      - uses: ZimboPro/flutter-unused-files@v1
         with:
           assets: true
   check_files:
@@ -25,6 +25,6 @@ jobs:
     needs: [check_files_ignore_assets]
     steps:
       - uses: actions/checkout@v3
-      - uses: ZimboPro/flutter-unused-files@v1.0.0
+      - uses: ZimboPro/flutter-unused-files@v1
         with:
           assets: true
